@@ -2,21 +2,17 @@ var express = require('express');
 var crypto = require('crypto');
 var app = express();
 var mysql = require('mysql');
-var Client = require('ssh2').Client;
 var bodyParser = require('body-parser');
 const { saltHashPassword } = require("./component/CryptoPassword");
 var v4 = require('uuid');
-const axios = require('axios');
-var create_sql = "";
 
 var con = mysql.createConnection({
     host: 'localhost',
     port: '3306',
     user: 'root',
     password: 'benevolent2378',
-    database: 'login'
+    database: 'LOGIN'
 });
-
 
 // Check database existence and if exists, create table.
 const checkTableExistsQuery = 'SHOW TABLES LIKE \'members\'';
@@ -48,11 +44,11 @@ var genRandomString = function(length){
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.listen(3000, () => {
+app.listen(80, () => {
     console.log("Listening on express port, ")
 });
 
-app.post("/register/", async(req, res) => {
+app.post("/register/", (req, res) => {
     var post_data = req.body;
     var password = post_data.password;
     var name = post_data.name;
