@@ -4,7 +4,10 @@ var app = express();
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
 const { saltHashPassword } = require("./component/CryptoPassword");
+const { createDatabase, createIndex } = require("./createDatabase");
 var v4 = require('uuid');
+const { register } = require('./component/register');
+const { appLogin, kakaoLogin } = require('./component/login');
 
 var con = mysql.createConnection({
     host: 'localhost',
@@ -14,24 +17,18 @@ var con = mysql.createConnection({
     database: 'LOGIN'
 });
 
-// Check database existence and if exists, create table.
-const checkTableExistsQuery = 'SHOW TABLES LIKE \'members\'';
-
-con.query(checkTableExistsQuery, function(err, results, fields) {
-    if(err){
-        console.error("Error checking table existence.");
-        return;
-    }
-    if(results.length == 0){
-        let create_sql = "CREATE TABLE members(unique_id VARCHAR(36) NOT NULL, name VARCHAR(32) NOT NULL, password VARCHAR(32) NOT NULL)"     
-        con.query(create_sql, function (create_err, create_results, create_fields) {
-        if (create_err) {
-            console.log(create_err);
-        }
-        console.log("Table make succeeds");
-        });
-    }
-}); 
+// Check database existence and create tables.
+createDatabase("members", "CREATE TABLE members(member_id VARCHAR(36) PRIMARY KEY, id VARCHAR(32) NOT NULL, password VARCHAR(32) NOT NULL)", con);
+createDatabase("assetsgroups", "CREATE TABLE assetsgroups(assetsgroup_id VARCHAR(36) PRIMARY KEY, assetsgroupname VARCHAR(32) NOT NULL, assetsgroupgoal VARCHAR(32) NOT NULL)", con);
+createDatabase("categories", "CREATE TABLE categories(category_id VARCHAR(36) PRIMARY KEY, tag VARCHAR(32) NOT NULL)", con);
+createDatabase("assets", "CREATE TABLE assets(asset_id VARCHAR(36) PRIMARY KEY, assets INT UNSIGNED NOT NULL, sign BOOLEAN NOT NULL)", con);
+createIndex("SHOW INDEX FROM members WHERE Column_name = \'member_id\'", "CREATE INDEX idx_member_id ON members(member_id)", con);
+createIndex("SHOW INDEX FROM assetsgroups WHERE Column_name = \'assetsgroup_id\'", "CREATE INDEX idx_assetsgroup_id ON assetsgroups(assetsgroup_id)", con);
+createIndex("SHOW INDEX FROM categories WHERE Column_name = \'category_id\'", "CREATE INDEX idx_category_id ON categories(category_id)", con);
+createIndex("SHOW INDEX FROM assets WHERE Column_name = \'asset_id\'", "CREATE INDEX idx_asset_id ON assets(asset_id)", con);
+createDatabase("assetsgroupcategorypair", "CREATE TABLE assetsgroupcategorypair(assetsgroup_id VARCHAR(36), category_id VARCHAR(36), PRIMARY KEY(assetsgroup_id, category_id), FOREIGN KEY (assetsgroup_id) REFERENCES assetsgroups(assetsgroup_id), FOREIGN KEY(category_id) REFERENCES categories(category_id))", con);
+createDatabase("assetsgroupmemberpair", "CREATE TABLE assetsgroupmemberpair(assetsgroup_id VARCHAR(36), member_id VARCHAR(36), PRIMARY KEY(assetsgroup_id, member_id), FOREIGN KEY (assetsgroup_id) REFERENCES assetsgroups(assetsgroup_id), FOREIGN KEY(member_id) REFERENCES members(member_id))", con)
+createDatabase("assetmanagerpair", "CREATE TABLE assetmanagerpair(member_id VARCHAR(36), asset_id VARCHAR(36), category_id VARCHAR(36), assetgoal INT UNSIGNED NOT NULL, PRIMARY KEY(member_id, asset_id, category_id), FOREIGN KEY(member_id) REFERENCES members(member_id), FOREIGN KEY (asset_id) REFERENCES assets(asset_id), FOREIGN KEY (category_id) REFERENCES categories(category_id))", con)
 
 
 //Password Util
@@ -48,29 +45,6 @@ app.listen(80, () => {
     console.log("Listening on express port, ")
 });
 
-app.post("/register/", (req, res) => {
-    var post_data = req.body;
-    var password = post_data.password;
-    var name = post_data.name;
-    var uid = v4.v4();
-    console.log(uid);
-
-            con.query('INSERT INTO `members` (`unique_id`, `name`, `password`) VALUES(?, ?, ?)', 
-            [uid, name, password], function(err, result, fields){
-                
-                con.on('error', function(err){
-                        console.log('[MySQL ERROR]', err);
-                        res.json('Register error', err);
-                });
-
-
-                con.query('SELECT * FROM members', function(err, result, fields){
-                    con.on('error', function(err){
-                        console.log('error', err);
-                        res.json('Register error2', err);
-                    });
-                    console.log(result);
-                    res.json('Register successful');
-                });
-            })
-});
+register(app, con);
+appLogin(app, con);
+kakaoLogin(app, con);
