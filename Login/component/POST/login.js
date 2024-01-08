@@ -48,6 +48,7 @@ function kakaoLogin(app, con){
         var post_data = req.body;
         var password = post_data.password;
         var id = post_data.id;
+        var assets = post_data.assets;
         var uid = v4.v4();
         var flag = 1;
         
@@ -62,8 +63,8 @@ function kakaoLogin(app, con){
     
                 // id does not exist, successful register
                 if (idCheckResult.length === 0) {
-                    con.query('INSERT INTO `members` (`member_id`, `id`, `password`) VALUES(?, ?, ?)', 
-                        [uid, id, secretKey + password], function(err, result, fields){
+                    con.query('INSERT INTO `members` (`member_id`, `id`, `password`, `assets`) VALUES(?, ?, ?, ?)', 
+                        [uid, id, secretKey + password, assets], function(err, result, fields){
                     
                             con.on('error', function(err){
                                 console.log('[MySQL ERROR]', err);
@@ -100,8 +101,8 @@ function kakaoLogin(app, con){
                         if (flag === 1){
 
 
-                            con.query('INSERT INTO `members` (`member_id`, `id`, `password`) VALUES(?, ?, ?)', 
-                            [uid, id, secretKey + password], function(err, result, fields){
+                            con.query('INSERT INTO `members` (`member_id`, `id`, `password`, `assets`) VALUES(?, ?, ?, ?)', 
+                            [uid, id, secretKey + password, assets], function(err, result, fields){
                             con.on('error', function(err){
                                 console.log('[MySQL ERROR]', err);
                                 res.json('Register error', err);
