@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 const { saltHashPassword } = require("./component/CryptoPassword");
 const { createDatabase, createIndex } = require("./createDatabase");
 var v4 = require('uuid');
-const { register } = require('./component/POST/register');
+const { register, registerAsset } = require('./component/POST/register');
 const { appLogin, kakaoLogin } = require('./component/POST/login');
 const { assetsgroup } = require('./component/POST/assetsgroup');
 const { categories } = require('./component/POST/categories');
@@ -23,7 +23,7 @@ var con = mysql.createConnection({
 });
 
 // Check database existence and create tables.
-createDatabase("members", "CREATE TABLE members(member_id VARCHAR(36) PRIMARY KEY, id VARCHAR(32) NOT NULL, password VARCHAR(32) NOT NULL)", con);
+createDatabase("members", "CREATE TABLE members(member_id VARCHAR(36) PRIMARY KEY, id VARCHAR(32) NOT NULL, password VARCHAR(32) NOT NULL, assets INT NOT NULL)", con);
 createDatabase("assetsgroups", "CREATE TABLE assetsgroups(assetsgroup_id VARCHAR(36) PRIMARY KEY, assetsgroupname VARCHAR(32) NOT NULL, assetsgroupgoal VARCHAR(32) NOT NULL)", con);
 createDatabase("categories", "CREATE TABLE categories(category_id VARCHAR(36) PRIMARY KEY, tag VARCHAR(32) NOT NULL)", con);
 createDatabase("assets", "CREATE TABLE assets(asset_id VARCHAR(36) PRIMARY KEY, assets INT UNSIGNED NOT NULL, sign BOOLEAN NOT NULL)", con);
@@ -52,6 +52,7 @@ app.listen(80, () => {
 
 idCheck(app, con);
 register(app, con);
+registerAsset(app, con);
 appLogin(app, con);
 kakaoLogin(app, con);
 getAllMembers(app, con);
