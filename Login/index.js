@@ -6,9 +6,13 @@ var bodyParser = require('body-parser');
 const { saltHashPassword } = require("./component/CryptoPassword");
 const { createDatabase, createIndex } = require("./createDatabase");
 var v4 = require('uuid');
-const { register } = require('./component/register');
-const { appLogin, kakaoLogin } = require('./component/login');
-const { assetsgroup } = require('./component/assetsgroup');
+const { register } = require('./component/POST/register');
+const { appLogin, kakaoLogin } = require('./component/POST/login');
+const { assetsgroup } = require('./component/POST/assetsgroup');
+const { categories } = require('./component/POST/categories');
+const { assetsgroupmemberpair } = require('./component/POST/assetsgroupmemberpair');
+const { getAllMembers } = require('./component/GET/getAllMembers');
+const { idCheck } = require('./component/POST/idCheck');
 
 var con = mysql.createConnection({
     host: 'localhost',
@@ -46,7 +50,11 @@ app.listen(80, () => {
     console.log("Listening on express port, ")
 });
 
+idCheck(app, con);
 register(app, con);
 appLogin(app, con);
 kakaoLogin(app, con);
+getAllMembers(app, con);
 assetsgroup(app, con);
+categories(app, con);
+assetsgroupmemberpair(app, con);
