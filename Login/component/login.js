@@ -24,8 +24,13 @@ function appLogin(app, con){
                 else {
                     const correctPassword = idCheckResult[0].password;
                     if (password === correctPassword) {
-                        console.log('authentication success')
-                        res.status(200).json({ message: 'Login successful' });
+                        console.log('authentication success');
+                        con.query('SELECT member_id FROM members WHERE id = ?', [id], function(err, result){
+                            con.on('error', function(err){
+                            res.json('error', err);
+                        })
+                        res.status(200).json({member_id: result[0].member_id});  
+                        });
                     } else {
                         console.log('authentication fail')
                         res.status(500).json({ message: 'Incorrect Password' });
@@ -69,14 +74,19 @@ function kakaoLogin(app, con){
                             res.json('Debug error2', err);
                         });
                         console.log(result);
-                        res.status(200).json({message: 'Register successful'});
+                        res.status(200).json({member_id: id});
                     });
                 })
                 }
                 // id exists
                 else {
                     console.log("Id exists");
-                    res.status(200).json({message: 'Login successful'});
+                    con.query('SELECT member_id FROM members WHERE id = ?', [id], function(err, result){
+                      con.on('error', function(err){
+                        res.json('error', err);
+                      })
+                      res.status(200).json({member_id: result[0].member_id});  
+                    });
                 }
             }
         })

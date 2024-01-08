@@ -8,6 +8,7 @@ const { createDatabase, createIndex } = require("./createDatabase");
 var v4 = require('uuid');
 const { register } = require('./component/register');
 const { appLogin, kakaoLogin } = require('./component/login');
+const { assetsgroup } = require('./component/assetsgroup');
 
 var con = mysql.createConnection({
     host: 'localhost',
@@ -48,3 +49,4 @@ app.listen(80, () => {
 register(app, con);
 appLogin(app, con);
 kakaoLogin(app, con);
+assetsgroup(app, con);
