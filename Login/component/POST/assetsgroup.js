@@ -34,7 +34,7 @@ function assetsgroup(app, con){
                             res.json('Debug error2', err);
                         });
                         console.log(result);
-                        res.status(200).json({message: 'Register successful'});
+                        res.status(200).json({assetsgroup_id: uid});
                     });
                 })
                 }

@@ -1,4 +1,6 @@
 var v4 = require('uuid');
+const secretKey = "ewiv34!@3jkdl**gfdlk;w";
+const len = secretKey.length;
 
 function appLogin(app, con){
     
@@ -47,6 +49,7 @@ function kakaoLogin(app, con){
         var password = post_data.password;
         var id = post_data.id;
         var uid = v4.v4();
+        var flag = 1;
         
         // check whether same id exists
         con.query('SELECT * FROM members WHERE id = ?', [id], function(idCheckErr, idCheckResult, idCheckFields) {
@@ -60,7 +63,7 @@ function kakaoLogin(app, con){
                 // id does not exist, successful register
                 if (idCheckResult.length === 0) {
                     con.query('INSERT INTO `members` (`member_id`, `id`, `password`) VALUES(?, ?, ?)', 
-                        [uid, id, password], function(err, result, fields){
+                        [uid, id, secretKey + password], function(err, result, fields){
                     
                             con.on('error', function(err){
                                 console.log('[MySQL ERROR]', err);
@@ -78,14 +81,47 @@ function kakaoLogin(app, con){
                     });
                 })
                 }
+
                 // id exists
                 else {
-                    console.log("Id exists");
-                    con.query('SELECT member_id FROM members WHERE id = ?', [id], function(err, result){
-                      con.on('error', function(err){
-                        res.json('error', err);
-                      })
-                      res.status(200).json({member_id: result[0].member_id});  
+                    
+                    // check whether it is a kakao account
+                    con.query('SELECT password FROM members WHERE id = ?', [id], function(err, result){
+                        
+                        con.on('error', function(err){
+                          res.json('error', err);
+                        })
+                        
+                        result.forEach(elem => {
+                            if((elem.password.substring(0, len) === secretKey) && (flag === 1)){
+                                flag = 0;
+                            }
+                        });
+                        if (flag === 1){
+
+
+                            con.query('INSERT INTO `members` (`member_id`, `id`, `password`) VALUES(?, ?, ?)', 
+                            [uid, id, secretKey + password], function(err, result, fields){
+                            con.on('error', function(err){
+                                console.log('[MySQL ERROR]', err);
+                                res.json('Register error', err);
+                            });
+    
+    
+                            con.query('SELECT * FROM members', function(err, result, fields){
+                            con.on('error', function(err){
+                                console.log('error', err);
+                                res.json('Debug error2', err);
+                            });
+                            console.log(result);
+                            res.status(200).json({member_id: id});
+                            });
+                            })
+                        }
+                        else {
+                            res.status(200).json({member_id: id});
+                            flag = 1;
+                        }
                     });
                 }
             }
