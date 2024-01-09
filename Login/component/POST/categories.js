@@ -40,7 +40,7 @@ function categories(app, con){
                 // category exists
                 else {
                     console.log("Category exists");
-                    // Not Implemented
+                    res.status(200).json({category_id : tagCheckResult[0].category_id});
                 }
             }
         })
