@@ -31,7 +31,7 @@ function appLogin(app, con){
                             con.on('error', function(err){
                             res.json('error', err);
                         })
-                        res.status(200).json({member_id: result[0].member_id});  
+                        res.status(200).json({member_id: result[0].member_id, id: id});  
                         });
                     } else {
                         console.log('authentication fail')
@@ -78,7 +78,7 @@ function kakaoLogin(app, con){
                             res.json('Debug error2', err);
                         });
                         console.log(result);
-                        res.status(200).json({member_id: id});
+                        res.status(200).json({member_id: uid, id: id, result: "1"});
                     });
                 })
                 }
@@ -115,12 +115,12 @@ function kakaoLogin(app, con){
                                 res.json('Debug error2', err);
                             });
                             console.log(result);
-                            res.status(200).json({member_id: id});
+                            res.status(200).json({member_id: uid, id: id, result: "1"});
                             });
                             })
                         }
                         else {
-                            res.status(200).json({member_id: id});
+                            res.status(200).json({member_id: uid, id: id, result: "0"});
                             flag = 1;
                         }
                     });
