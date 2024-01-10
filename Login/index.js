@@ -15,7 +15,8 @@ const { getAllMembers } = require('./component/GET/getAllMembers');
 const { idCheck } = require('./component/POST/idCheck');
 const { assetsgroupcategorypair } = require('./component/POST/assetsgroupcategorypair');
 const { getAllGroups } = require('./component/POST/getAllGroups');
-const { getGroupInformation } = require('./component/POST/getGroupInformation');
+const { getAssets } = require('./component/POST/getAssets');
+const { updateAssets, updateUses } = require('./component/POST/updateAssets');
 
 var con = mysql.createConnection({
     host: 'localhost',
@@ -64,4 +65,6 @@ categories(app, con);
 assetsgroupmemberpair(app, con);
 assetsgroupcategorypair(app, con);
 getAllGroups(app, con);
-//getGroupInformation(app, con);
+getAssets(app, con);
+updateAssets(app, con);
+updateUses(app, con);

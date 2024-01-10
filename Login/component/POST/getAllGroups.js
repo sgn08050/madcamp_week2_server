@@ -23,7 +23,6 @@ function getAllGroups(app, con) {
             if (err) {
                 res.status(500).send('Error Selecting Members');
             } else {
-                console.log(results)
                 res.json(results);
             }
         });
